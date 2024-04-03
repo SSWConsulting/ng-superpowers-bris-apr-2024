@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Company } from './company';
 import { HttpClient } from '@angular/common/http';
-import { Observable, catchError } from 'rxjs';
+import { Observable, catchError, finalize, tap } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -16,7 +16,9 @@ export class CompanyService {
 
   getCompanies(): Observable<Company[]> {
     return this.httpClient.get<Company[]>(`${this.API_BASE}/company`).pipe(
-      catchError(this.errorHandler)
+      tap(x => console.log('TAP - getCompanies', x.length)),
+      catchError(this.errorHandler),
+      finalize(() => console.log('FINALIZE - getCompanies'))
     );
   }
 
