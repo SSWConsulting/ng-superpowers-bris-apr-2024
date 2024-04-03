@@ -1,22 +1,22 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { Company } from '../company';
+import { CompanyService } from '../company.service';
 
 @Component({
   selector: 'fbc-company-list',
   templateUrl: './company-list.component.html',
   styleUrl: './company-list.component.scss'
 })
-export class CompanyListComponent {
+export class CompanyListComponent implements OnInit {
 
   companies: Company[] = [];
 
-  constructor() {
-    this.companies = [
-      { name: 'Company 1', phone: '123-456-7890', email: 'one@one.com' },
-      { name: 'Company 2', phone: '123-456-7890', email: 'one@one.com' },
-      { name: 'Company 3', phone: '123-456-7890', email: 'one@one.com' },
-      { name: 'Company 4', phone: '123-456-7890', email: 'one@one.com' },
-    ];
+  constructor(private readonly companyService: CompanyService) {
+    
+  }
+  
+  ngOnInit(): void {
+    this.companies = this.companyService.getCompanies();
   }
 
 }
