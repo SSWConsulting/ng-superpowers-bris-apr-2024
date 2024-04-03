@@ -12,11 +12,16 @@ export class CompanyListComponent implements OnInit {
   companies: Company[] = [];
 
   constructor(private readonly companyService: CompanyService) {
-    
-  }
-  
-  ngOnInit(): void {
-    this.companies = this.companyService.getCompanies();
+
   }
 
+  ngOnInit(): void {
+    this.loadCompanies();
+  }
+
+  private loadCompanies(): void {
+    this.companyService.getCompanies().subscribe(companies => {
+      this.companies = companies;
+    });
+  }
 }
