@@ -1,7 +1,7 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Company } from '../company';
 import { CompanyService } from '../company.service';
-import { Observable, Subject } from 'rxjs';
+import { Observable, Subject, finalize } from 'rxjs';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 
 @UntilDestroy()
@@ -12,7 +12,6 @@ import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 })
 export class CompanyListComponent implements OnInit {
 
-  unsubscribe$ = new Subject<void>();
   companies$!: Observable<Company[]>;
 
   constructor(private readonly companyService: CompanyService) {
@@ -21,6 +20,13 @@ export class CompanyListComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadCompanies();
+  }
+
+  deleteCompany(company: Company): void {
+    console.log('deleteCompany', company);
+    this.companyService.deleteCompany(company.id).pipe(
+      finalize(() => console.log('FINALIZE - deleteCompany')),
+    ).subscribe(() => this.loadCompanies());
   }
 
   private loadCompanies(): void {
