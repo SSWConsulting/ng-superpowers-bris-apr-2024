@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Company } from './company';
 import { HttpClient } from '@angular/common/http';
-import { Observable, catchError, finalize, tap } from 'rxjs';
+import { BehaviorSubject, Observable, catchError, delay, finalize, tap } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -10,16 +10,24 @@ export class CompanyService {
 
   API_BASE = 'https://app-fbc-crm-api-prod.azurewebsites.net/api';
 
+  private readonly companies$ = new BehaviorSubject<Company[]>([]);
+
   constructor(
     private httpClient: HttpClient,
-  ) { }
+  ) {
+    this.loadCompanies();
+   }
 
-  getCompanies(): Observable<Company[]> {
-    return this.httpClient.get<Company[]>(`${this.API_BASE}/company`).pipe(
+  private loadCompanies(): void {
+    this.httpClient.get<Company[]>(`${this.API_BASE}/company`).pipe(
       tap(x => console.log('TAP - getCompanies', x.length)),
       catchError(this.errorHandler<Company[]>),
       finalize(() => console.log('FINALIZE - getCompanies'))
-    );
+    ).subscribe(companies => this.companies$.next(companies));
+  }
+
+  getCompanies(): Observable<Company[]> {
+    return this.companies$;
   }
 
   getCompany(companyId: number): Observable<Company> {
@@ -31,6 +39,7 @@ export class CompanyService {
   addCompany(company: Company): Observable<Company> {
     return this.httpClient.post<Company>(`${this.API_BASE}/company`, company).pipe(
       catchError(this.errorHandler<Company>),
+      tap(() => this.loadCompanies()),
     );
   }
 
@@ -38,6 +47,7 @@ export class CompanyService {
     company.id = companyId;
     return this.httpClient.put<Company>(`${this.API_BASE}/company/${companyId}`, company).pipe(
       catchError(this.errorHandler<Company>),
+      tap(() => this.loadCompanies()),
     );
   }
 
@@ -45,6 +55,7 @@ export class CompanyService {
     console.log('deleteCompany', companyId);
     return this.httpClient.delete<Company>(`${this.API_BASE}/company/${companyId}`).pipe(
       catchError(this.errorHandler<Company>),
+      tap(() => this.loadCompanies()),
     );
   }
 

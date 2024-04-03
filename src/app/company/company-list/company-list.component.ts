@@ -27,7 +27,7 @@ export class CompanyListComponent implements OnInit {
     console.log('deleteCompany', company);
     this.companyService.deleteCompany(company.id).pipe(
       finalize(() => console.log('FINALIZE - deleteCompany')),
-    ).subscribe(() => this.loadCompanies());
+    ).subscribe(() => {});
   }
 
   private loadCompanies(): void {
