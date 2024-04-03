@@ -13,6 +13,7 @@ import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 export class CompanyListComponent implements OnInit {
 
   companies$!: Observable<Company[]>;
+  companies: Company[] = [];
 
   constructor(private readonly companyService: CompanyService) {
 
@@ -31,6 +32,8 @@ export class CompanyListComponent implements OnInit {
 
   private loadCompanies(): void {
     this.companies$ = this.companyService.getCompanies();
+
+    // this.companyService.getCompanies().subscribe(x => this.companies = x);
 
     // this.companyService.getCompanies()
     //   .pipe(untilDestroyed(this))
