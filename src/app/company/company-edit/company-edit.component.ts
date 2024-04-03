@@ -3,7 +3,9 @@ import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms'
 import { ActivatedRoute, Router } from '@angular/router';
 import { CompanyService } from '../company.service';
 import { Company } from '../company';
+import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 
+@UntilDestroy()
 @Component({
   selector: 'fbc-company-edit',
   templateUrl: './company-edit.component.html',
@@ -29,7 +31,8 @@ export class CompanyEditComponent implements OnInit {
   companyForm = this.fb.group({
     name: ['', [Validators.required, Validators.minLength(3)]],
     email: ['', [Validators.required, Validators.email]],
-    phone: [''],
+    phoneRequired: [false],
+    phone: [{value: '', disabled: true}],
   });
 
   constructor(
@@ -48,6 +51,20 @@ export class CompanyEditComponent implements OnInit {
         this.companyForm.patchValue(company);
       });
     }
+
+    this.companyForm.get('phoneRequired')?.valueChanges.pipe(
+      untilDestroyed(this),
+    ).subscribe(phoneRequired => {
+      const phoneControl = this.companyForm.get('phone');
+      if (phoneRequired) {
+        phoneControl?.setValidators([Validators.required]);
+        phoneControl?.enable();
+      } else {
+        phoneControl?.clearValidators();
+        phoneControl?.disable();
+      }
+      phoneControl?.updateValueAndValidity();
+    });
   }
 
   saveCompany(): void {
